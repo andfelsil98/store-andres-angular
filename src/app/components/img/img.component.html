@@ -1,0 +1,8 @@
+<!-- <p>img works!</p> -->
+<!-- string interpolation -->
+<!-- <h1>{{ img }}</h1> -->
+<!-- si la imagen tiene una carga erronea por ejemplo mal el url vamos a generar un event biding llamado error para que ejecute una funcion -->
+<img [src]="img" (load)= "imgloaded()" (error)="imgError()" alt="" *ngIf="img; else elseImg">
+<ng-template #elseImg>
+  <img [src]="imageDefault" alt="">
+</ng-template>
