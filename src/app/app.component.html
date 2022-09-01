@@ -1,12 +1,24 @@
 <!-- la forma de llamar a un componente desde otro es con el nombre de su selector. este se encuentra en el .component.ts y estos componentes se comportan como cualquier otro elemento de html -->
 <!-- me traigo la clase img del img.component.ts al app.component.html y le puedo modificar el valor siempre y cuando se haya declarado como input en el ts dicha clase o variable -->
 <!-- en este programa lo que hago es tomar el input asignarlo a imgparent y luego ese img parent se asigna por medio de property biding a la variable img que es una variable del hijo img.component que basicamente lo unico que ejecuta es mostrar la imagen -->
-<p><input type="text" [(ngModel)]="imgParent"></p>
+<!--
+<p><input type="text" [(ngModel)]="imgParent"></p> -->
+
 <!-- asi como los eventos tipo click, scroll etc los outputs que vengan desde el hijo seran tratados como eventos en este caso el output loaded. -->
-<app-img (loaded)="onLoaded($event)" [img]="imgParent"></app-img>
+
+<!-- <button (click)="toggleImg()">Toogle Img</button>
+<p> {{ showImg }} </p> -->
+
+<!-- con showImg lo que estoy haciendo es poner un estado booleano para que si es true el component exista si es false se destruya. todo eso para comprobar que hay eventos que aunque se elimine el componente seguiran ejecutandose en este caso el evento run counter -->
+
+<!-- <app-img *ngIf="showImg" (loaded)="onLoaded($event)" [img]="imgParent"></app-img> -->
+
 
 <!-- llamo a mi componente product si no lo llamo directamente en el padre lo que se haga en el componente no sera visible -->
 <!-- lo que hace esta parte de codigo es hacer un for para iterar el array llamado products que tengo en el app.component.ts (padre) y guardando cada iteracion en el iterador product, luego de esto con property binding esta asignando al hijo ese iterador product a su variable product que se encuentra en product.component.ts, de esta forma se convierte en un ciclo en el cual leo el array envio la informacion al hijo (ts) este lo envia al product.component.html el cual lo renderiza y este es visible por el llamado propio al selector app-product del padre -->
-<app-product [product]=" product" *ngFor="let product of products" ></app-product>
+<!-- <app-product [product]=" product" *ngFor="let product of products" ></app-product> -->
+<!-- IMPORTANTE ! LOS COMPONENTES NO SOLO SE PUEDEN LLAMAR DE HIJO A PADRE SINO ENTRE COMPONENTES DEL MISMO NIVEL -->
 
-
+<!-- INICIO DEL PROYECTO -->
+<app-nav></app-nav>
+<app-products></app-products>

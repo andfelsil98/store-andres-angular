@@ -1,0 +1,25 @@
+<p>
+  La cantidad
+  : {{ myShoppingCart.length }}
+</p>
+<p>
+  Total: {{ total }}
+</p>
+<!-- este pipe llamado date me sirve para tipar la fecha existen formatos de fecha por defecto -->
+<p>
+  Today: {{ today | date:'short' }}
+</p>
+<p>
+  Today: {{ today | timeAgo }}
+</p>
+<!-- o tambien puedo poner el formato que yo quiera -->
+<p>
+  Other Date: {{ date | date:'yyyy.dd.MM' }}
+</p>
+<!-- este pipe me sirve para poner todo el string en mayuscula -->
+<p>
+  {{ 'AnDrEs StOrE' | uppercase }}
+</p>
+<div class="products--grid">
+  <app-product [product]=" product" *ngFor="let product of products" (addedProduct)="onAddToShoppingCart($event)"></app-product>
+</div>
