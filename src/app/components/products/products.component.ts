@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Product } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service'
+import { isThisISOWeek } from 'date-fns';
 
 // UN COMPONENTE SOLO DEBE CONTENER LOGICA Y ESTADO RELACIONADO CON LA PRESENTACION
 @Component({
@@ -13,6 +14,18 @@ export class ProductsComponent implements OnInit {
   // podemos aislar todo lo que tiene que ver con la logica de negocio a nivel de programacion en los servicios. en este caso pasaremos toda la logica del shopping cart al archivo store services.ts
   myShoppingCart: Product[] = [];
   total = 0;
+  showProductDetail = false;
+  productChosen: Product = {
+    id: '',
+    title: '',
+    images: [],
+    price: 0,
+    category: {
+      id: '',
+      name:''
+    },
+    description: ''
+  }
 
   products: Product[] = [
     // {
@@ -74,6 +87,18 @@ export class ProductsComponent implements OnInit {
     // this.myShoppingCart.push(product);
     // esta parte del codigo me suma los elementos de mi lista de objetos
     // this.total = this.myShoppingCart.reduce((sum, item) => sum + item.price, 0)
+  }
+
+  toggleProductDetail() {
+    this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetail(id: string) {
+    this.productsService.getProduct(id)
+    .subscribe (data => {
+      this.toggleProductDetail();
+      this.productChosen = data;
+    })
   }
 
 }

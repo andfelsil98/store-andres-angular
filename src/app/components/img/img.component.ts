@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChange
   styleUrls: ['./img.component.scss']
 })
 export class ImgComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
-  // Para enviar información de padre a hijo, puedes utilizar el decorador @Input() para marcar una propiedad de una clase como punto de entrada de un dato. en este caso el componente hijo es img el componente padre es app
+  // Para enviar información de padre  a hijo, puedes utilizar el decorador @Input() para marcar una propiedad de una clase como punto de entrada de un dato. en este caso el componente hijo es img el componente padre es app
   // forma para declarar los inputs y que el onchanges lea un cambio especifico de un solo input o los que yo quiera leer
   img: string = '';
   // eslint-disable-next-line @angular-eslint/no-input-rename

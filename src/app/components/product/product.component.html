@@ -1,13 +1,16 @@
 <!-- renderizo mi componente img -->
-<app-img [img]="product.image"></app-img>
+<app-img *ngIf="product.images.length > 0 " [img]="product.images[0]"></app-img>
 <!-- un Pipe es una función pura, o sea, una función que dado un determinado valor siempre devolverá el mismo resultado.
 
 Los Pipes no modifican el valor de un dato, simplemente le cambian el aspecto visual, Angular utiliza el concepto de Pipes para la transformación de datos. en este caso estoy usando el pipe currency que es para ponerle un formato especifico de moneda a los precios en este caso por ejemplo para colombia ponerle COP al precio para indicar que son pesos colombianos
 los pipes solo se usan en el HTML no en otro lado
 -->
-<h2> ${{ product.price | currency:'COP' }}</h2>
-<p> {{ product.title | reverse }} </p>
-<p> {{ product.id }}</p>
+<h2> ${{ product.price | currency:'COP ' }}</h2>
+<!-- <p> {{ product.title | reverse }} </p> -->
+<p> {{ product.title }} </p>
+<!-- <p> {{ product.id }}</p> -->
 <!-- uso de la directiva higlight para modificarle el background. se pone como un atributio del elemento -->
-<p appHighlight> {{ product.description }} </p>
+<!-- <p appHighlight> {{ product.description }} </p> -->
 <button (click)="onAddToCart()">Add to cart</button>
+<button (click)="onShowDetail()">Ver detalle</button>
+
