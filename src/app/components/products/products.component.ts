@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from '../../models/product.model';
+import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service'
 import { isThisISOWeek } from 'date-fns';
@@ -26,6 +26,8 @@ export class ProductsComponent implements OnInit {
     },
     description: ''
   }
+  limit = 10;
+  offset = 0;
 
   products: Product[] = [
     // {
@@ -74,10 +76,15 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     // aqui se procesa los procesos asincronos en este caso la peticion http
-    this.productsService.getAllProducts()
-    .subscribe(data => { //para poder estar pendiente de cuando me entrega la informacion la api, puedo usar los conceptos de observables y suscriptores. en este caso el suscriptor lo que hace es suscribirse a dicha api y se va a quedar observando apenas exista informacion nueva la va a capturar y la enviara a nosotros.
-      this.products = data;
-    });
+    // esta linea es si quiero traer todos los productos
+    // this.productsService.getAllProducts()
+    // esta linea es si quiero traer un numero especifico de productos
+  //   this.productsService.getProductsByPage(10,0)
+  //   .subscribe(data => { //para poder estar pendiente de cuando me entrega la informacion la api, puedo usar los conceptos de observables y suscriptores. en este caso el suscriptor lo que hace es suscribirse a dicha api y se va a quedar observando apenas exista informacion nueva la va a capturar y la enviara a nosotros.
+  //     this.products = data;
+
+  //   });
+    this.loadMore();
   };
 
   onAddToShoppingCart( product: Product) {
@@ -99,6 +106,52 @@ export class ProductsComponent implements OnInit {
       this.toggleProductDetail();
       this.productChosen = data;
     })
+  }
+
+  createNewProduct() {
+    const product: CreateProductDTO = {
+      title: 'Nuevo producto',
+      description: 'Esta es una descripcion',
+      images: [`https://placeimg.com/640/480/any?random=${Math.random()}`],
+      price: 200,
+      categoryId: 2,
+    }
+    this.productsService.create(product)
+    .subscribe( data => {
+      console.log(`created: ${data}`);
+      this.products.unshift(data);
+    })
+  }
+
+  updateProduct() {
+    const changes: UpdateProductDTO = {
+      title: 'nuevo titulo'
+    }
+    const id = this.productChosen.id; //id del producto que esta seleccionado en ese momento
+    this.productsService.update(id, changes)
+    .subscribe(data => {
+      const productIndex = this.products.findIndex ( item => item.id === this.productChosen.id)
+      this.products[productIndex] = data;
+      this.productChosen = data;
+    })
+  }
+
+  deleteProduct() {
+    const id = this.productChosen.id;
+    this.productsService.delete(id)
+    .subscribe (() => {
+      const productIndex = this.products.findIndex ( item => item.id === this.productChosen.id)
+      this.products.splice(productIndex, 1);
+      this.showProductDetail = false;
+    });
+  }
+  // esta funcion me esta tomando como referencia los limites y el offset inicial para que a partir de ahi me cargue los demas elementos de 10 en 10. entonces por medio de un boton voy cargando mas y mas elementos de 10 en 10
+  loadMore() {
+    this.productsService.getProductsByPage(this.limit, this.offset)
+    .subscribe(data => {
+      this.products = this.products.concat(data);
+      this.offset += this.limit;
+    });
   }
 
 }
