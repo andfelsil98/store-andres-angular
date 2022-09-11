@@ -16,7 +16,8 @@ export class ProductComponent {
       id: '',
       name:''
     },
-    description: ''
+    description: '',
+
   }
   // output para enviar algo desde el hijo al padre
 

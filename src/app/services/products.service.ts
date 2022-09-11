@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
 // para usar http hay que importar el modulo en app.module.ts y luego importarlo donde se vaya a usar
-import { HttpClient, HttpParams } from '@angular/common/http'
+import { HttpClient, HttpParams, HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { Product, CreateProductDTO, UpdateProductDTO } from './../models/product.model'
-import {retry} from 'rxjs/operators'
+import { retry, catchError, map } from 'rxjs/operators';
+import { throwError, zip } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { isNgTemplate } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductsService {
-  private apiUrl = 'https://young-sands-07814.herokuapp.com/api/products'
+  private apiUrl = `${environment.API_URL}/api/products` //se usa los ambientes para evitar problemas de CORS (problema con los dominios) cuando se pase de ambiente de desarrollo a un ambiente productivo. para ambiente de desarrollo se creo un proxy (proxy.config.json) para cambiar le origen de los dominios a nuestro dominio y evitar ese provlema. para prod no se puede igual por tanto en el archivo environment.prod.ts se pone la url del dominio de interes para evitar estos conflictos
   constructor(
     // como el modulo http es un servicio lo declaro en el constructor y lo pongo privado
     private http: HttpClient
@@ -26,12 +29,40 @@ export class ProductsService {
     // se hace el get o la peticion a la url de interes en este caso fake api
     return this.http.get<Product[]>(this.apiUrl, { params })
     .pipe(
-      retry(3)
+      retry(3),
+      map(products => products.map(item => {
+        return {
+        ...item,
+        taxes: .19 *item.price
+        }
+      })) //map sirve para transformar los valores que lleguen del observable. ahora internamente ya con la data se quiere aplicar el map nativo de js
     );// con el pipe logro hacer reintento de get a la url 3 veces en este caso esto se puede reintentar las veces que se requieran
+  }
+
+// metodo zip para poder ejecutar mas de un observable al tiempo
+  fetchReadAndUpdate(id:string, dto: UpdateProductDTO) {
+    return zip(
+      this.getProduct(id),
+      this.update(id, dto)
+    )
   }
 
   getProduct(id: string) {
     return this.http.get<Product>(`${this.apiUrl}/${id}`)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.Conflict) {
+          return throwError(() => new Error('Algo esta fallando en el server'));
+        }
+        if (error.status === HttpStatusCode.NotFound) {
+          return throwError(() => new Error('El producto no existe'));
+        }
+        if (error.status === HttpStatusCode.Unauthorized) {
+          return throwError(() => new Error('No estas autorizado'));
+        }
+        return throwError(() => new Error('Ups algo salio mal'));
+      })
+    )
   }
   // mostrando elementos de 10 en 10
 

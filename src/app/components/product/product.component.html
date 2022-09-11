@@ -8,6 +8,11 @@ los pipes solo se usan en el HTML no en otro lado
 <h2> ${{ product.price | currency:'COP ' }}</h2>
 <!-- <p> {{ product.title | reverse }} </p> -->
 <p> {{ product.title }} </p>
+<!-- cuando hay parametros opcionales hay estas dos opciones para mostarlos o no -->
+<!-- PRIMERA -->
+<!-- <p>  {{ product?.taxes }} </p> -->
+<!-- SEGUNDA -->
+<p *ngIf="product.taxes"> {{ product.taxes | currency:'COP '  }} </p>
 <!-- <p> {{ product.id }}</p> -->
 <!-- uso de la directiva higlight para modificarle el background. se pone como un atributio del elemento -->
 <!-- <p appHighlight> {{ product.description }} </p> -->

@@ -21,11 +21,13 @@
   {{ 'AnDrEs StOrE' | uppercase }}
 </p>
 <button (click)="createNewProduct()">create</button>
+<button (click)="onShowDetail('121212')">Detail not found</button>
 <div class="products--grid">
   <app-product [product]=" product" *ngFor="let product of products" (addedProduct)="onAddToShoppingCart($event)" (showProduct) = "onShowDetail($event)" ></app-product>
   <button (click)="loadMore()" >Load more</button>
 </div>
 <div class="product-detail" [class.active]="showProductDetail">
+  {{ statusDetail }}
   <div *ngIf="productChosen">
     <div class="product-detail-close">
       <img src="../../../assets/icons/icon_close.png" alt="close" (click)="toggleProductDetail()">

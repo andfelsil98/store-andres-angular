@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs';
+import { zip } from 'rxjs';
 import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service'
@@ -28,6 +30,7 @@ export class ProductsComponent implements OnInit {
   }
   limit = 10;
   offset = 0;
+  statusDetail: 'loading' | 'success' | 'error' | 'init' = 'init';
 
   products: Product[] = [
     // {
@@ -101,12 +104,65 @@ export class ProductsComponent implements OnInit {
   }
 
   onShowDetail(id: string) {
+    this.statusDetail = 'loading';
+    // this.productsService.getProduct(id)
+    // METODO DEPRECADO ES DECIR YA NO ES EL MAS OPTIMO
+    // .subscribe (data => {
+    //   this.toggleProductDetail();
+    //   this.productChosen = data;
+    //   this.statusDetail = 'success';
+    // }, error => {
+    //   console.error(error);
+    //   this.statusDetail = 'error';
+    // })
+    //METODO ACTUAL
+    this.toggleProductDetail();
     this.productsService.getProduct(id)
-    .subscribe (data => {
-      this.toggleProductDetail();
-      this.productChosen = data;
-    })
+    .subscribe({
+      next: (data) => this.showDetailOk(data),
+      error: (error) => this.showDetailError(error),
+      complete: () => console.info("complete")
+    });
   }
+
+  showDetailOk(data: Product) {
+    this.statusDetail = "success";
+    console.log("producto Obtenido", data);
+    this.productChosen = data;
+  }
+
+  showDetailError(error: any) {
+    this.statusDetail = "error";
+    window.alert(error);
+  }
+
+
+  readAndUpdate (id: string) {
+    // esto tambien se puede enviar a los servicios para poder reusarlo
+    this.productsService.getProduct(id) //forma para evitar el callback hell con observables. se pone importa switch map de rxjs luego se pone .pipe se usa la palabra switchmap y con ello se puede empezar a ejecutar una instruccion por una donde la cantidad que se ponga es la que se va a ejecutar una despues de la otra. finalmente se pone solo un subscribe que tendra la respuesta final con la cual hago algo
+    .pipe(
+      switchMap((product) => this.productsService.update(product.id, {title: 'change'})),
+      )
+    .subscribe (data => {
+      console.log(data);
+    });
+    // .subscribe (data => {
+    //   const product = data;
+    //   this.productsService.update(product.id, {title: 'change'})
+    //   .subscribe(rtaUpdate => {
+    //     console.log(rtaUpdate);
+    //   })
+    // })
+
+    // si quiero tener la respuesta de dos observables al tiempo utilizo zip importando zip de rxjs pongo los que necesito dentro de zip y posteriormente uso el subscribe y ahi puedo de inmediato saber las respuestas de ambos procesos. este proceso es  mejor manejarlo desde los servicios para poder reusarlo en mas componentes. este cambio ya esta en los servicios
+    this.productsService.fetchReadAndUpdate(id, {title: 'change'})
+    .subscribe(response => {
+      const product = response[0];
+      const update = response[1];
+    })
+
+  }
+
 
   createNewProduct() {
     const product: CreateProductDTO = {
