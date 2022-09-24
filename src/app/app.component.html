@@ -21,4 +21,22 @@
 
 <!-- INICIO DEL PROYECTO -->
 <app-nav></app-nav>
-<app-products></app-products>
+
+<button (click)="createUser()">Create user</button>
+
+<!-- forma para poner un boton que me descargue un archivo -->
+<!-- <a href="../assets/files/texto.txt" download>Descargar</a> -->
+
+
+<button (click)="downloadPdf()" >Descargar PDF</button>
+
+<p>
+  <input type="file" (change)="onUpload($event)">
+  <img *ngIf = 'imgRta'  [src]="imgRta">
+</p>
+<!-- <button (click)="login()">Login</button>
+<button (click)="getProfile()">Get profile</button> -->
+
+<!-- se comenta el app products y se introduce el router outlet para usar routing y renderizar el template que se neceiste segun la ruta -->
+<!-- <app-products></app-products> -->
+<router-outlet></router-outlet>

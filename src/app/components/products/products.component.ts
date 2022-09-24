@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { zip } from 'rxjs';
 import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
@@ -6,13 +6,15 @@ import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service'
 import { isThisISOWeek } from 'date-fns';
 
+
+
 // UN COMPONENTE SOLO DEBE CONTENER LOGICA Y ESTADO RELACIONADO CON LA PRESENTACION
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent{
   // podemos aislar todo lo que tiene que ver con la logica de negocio a nivel de programacion en los servicios. en este caso pasaremos toda la logica del shopping cart al archivo store services.ts
   myShoppingCart: Product[] = [];
   total = 0;
@@ -28,11 +30,20 @@ export class ProductsComponent implements OnInit {
     },
     description: ''
   }
-  limit = 10;
-  offset = 0;
+  // limit = 10;
+  // offset = 0;
   statusDetail: 'loading' | 'success' | 'error' | 'init' = 'init';
 
-  products: Product[] = [
+  @Output() loadMore: EventEmitter<string> = new EventEmitter<string>();
+
+  @Input()
+  set productId(id: string | null) {
+    if(id){
+      this.onShowDetail(id);
+    }
+  }
+
+  @Input () products: Product[] = [
     // {
     //   id: '1',
     //   name: 'Product 1',
@@ -77,7 +88,7 @@ export class ProductsComponent implements OnInit {
     this.myShoppingCart = this.storeService.getShoppingCart();
   }
 
-  ngOnInit(): void {
+  //ngOnInit(): void {
     // aqui se procesa los procesos asincronos en este caso la peticion http
     // esta linea es si quiero traer todos los productos
     // this.productsService.getAllProducts()
@@ -87,8 +98,8 @@ export class ProductsComponent implements OnInit {
   //     this.products = data;
 
   //   });
-    this.loadMore();
-  };
+    //this.loadMore();
+  //};
 
   onAddToShoppingCart( product: Product) {
     // se ha delegado a services agregar productos y sumar el total de los productos. aqui solo se llaman los metodos que se implementaron alli
@@ -116,7 +127,10 @@ export class ProductsComponent implements OnInit {
     //   this.statusDetail = 'error';
     // })
     //METODO ACTUAL
-    this.toggleProductDetail();
+    // this.toggleProductDetail();
+    if(!this.showProductDetail){
+      this.showProductDetail = true;
+    }
     this.productsService.getProduct(id)
     .subscribe({
       next: (data) => this.showDetailOk(data),
@@ -202,12 +216,16 @@ export class ProductsComponent implements OnInit {
     });
   }
   // esta funcion me esta tomando como referencia los limites y el offset inicial para que a partir de ahi me cargue los demas elementos de 10 en 10. entonces por medio de un boton voy cargando mas y mas elementos de 10 en 10
-  loadMore() {
-    this.productsService.getProductsByPage(this.limit, this.offset)
-    .subscribe(data => {
-      this.products = this.products.concat(data);
-      this.offset += this.limit;
-    });
+  // loadMore() {
+  //   this.productsService.getProductsByPage(this.limit, this.offset)
+  //   .subscribe(data => {
+  //     this.products = this.products.concat(data);
+  //     this.offset += this.limit;
+  //   });
+  // }
+
+  OnLoadMore() { //estoy emitiendo un evento que se llama loadmore que lo que transmite es un evento de click como un output, este lo toma el home como un event biding y lo asigna al metodo llamado load more en home.component.ts
+    this.loadMore.emit();
   }
 
 }

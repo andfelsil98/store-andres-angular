@@ -7,17 +7,28 @@ import { throwError, zip } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { isNgTemplate } from '@angular/compiler';
 
+import { checkTime } from '../interceptors/time.interceptor';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductsService {
-  private apiUrl = `${environment.API_URL}/api/products` //se usa los ambientes para evitar problemas de CORS (problema con los dominios) cuando se pase de ambiente de desarrollo a un ambiente productivo. para ambiente de desarrollo se creo un proxy (proxy.config.json) para cambiar le origen de los dominios a nuestro dominio y evitar ese provlema. para prod no se puede igual por tanto en el archivo environment.prod.ts se pone la url del dominio de interes para evitar estos conflictos
+  private apiUrl = `${environment.API_URL}/api` //se usa los ambientes para evitar problemas de CORS (problema con los dominios) cuando se pase de ambiente de desarrollo a un ambiente productivo. para ambiente de desarrollo se creo un proxy (proxy.config.json) para cambiar le origen de los dominios a nuestro dominio y evitar ese provlema. para prod no se puede igual por tanto en el archivo environment.prod.ts se pone la url del dominio de interes para evitar estos conflictos
   constructor(
     // como el modulo http es un servicio lo declaro en el constructor y lo pongo privado
     private http: HttpClient
   ) { }
 
-// PROGRAMA PARA OBTENER LA INFORMACION DE UNA API
+// PROGRAMA PARA OBTENER LA INFORMACION DE UNA API\
+
+  getByCategory (categoryId: string, limit?: number, offset?: number ){
+    let params = new HttpParams();
+    if (limit && offset) {
+    params = params.set('limit', limit);
+    params = params.set('offset', offset);
+    }
+    return this.http.get<Product[]>(`${this.apiUrl}/categories/${categoryId}/products`, { params })
+    }
 
 // puedo separar el hecho de mostrar todos los productos o mostrarlos de 10 en 10 sin embargo esto se puede hacer en un solo metodo de la siguiente forma. donde se puede ver que primero se pone como parametro opcional limit y offset y por otro lado se usa el httpparams para organizar la logica
   getAllProducts(limit?: number, offset?: number) {
@@ -27,7 +38,7 @@ export class ProductsService {
       params = params.set('offset', offset);
     }
     // se hace el get o la peticion a la url de interes en este caso fake api
-    return this.http.get<Product[]>(this.apiUrl, { params })
+    return this.http.get<Product[]>(`${this.apiUrl}/products`, { params, context: checkTime() })
     .pipe(
       retry(3),
       map(products => products.map(item => {
@@ -48,7 +59,7 @@ export class ProductsService {
   }
 
   getProduct(id: string) {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`)
+    return this.http.get<Product>(`${this.apiUrl}/products/${id}`)
     .pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === HttpStatusCode.Conflict) {
@@ -67,7 +78,7 @@ export class ProductsService {
   // mostrando elementos de 10 en 10
 
   getProductsByPage(limit: number, offset: number) {
-    return this.http.get<Product[]>(`${this.apiUrl}`,  { params: { limit, offset }
+    return this.http.get<Product[]>(`${this.apiUrl}/products`,  { params: { limit, offset }
   })
   .pipe(
     retry(3)
@@ -75,14 +86,14 @@ export class ProductsService {
   }
 // el hecho de usar los dto y los omit es por ejemplo en este caso que voy a enviar cierta informacion y otra no pero si voy a recibir de vuelta toda la informacion
   create(dto: CreateProductDTO) {
-    return this.http.post<Product>(this.apiUrl, dto);
+    return this.http.post<Product>(`${this.apiUrl}/products`, dto);
   }
 // los put funcionan como los get debo especificarle el id para saber que elemento quiero modificar
   update(id: string, dto: UpdateProductDTO) {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, dto);
   }
 
   delete(id: string) {
-    return this.http.delete<boolean> (`${this.apiUrl}/${id}`);
+    return this.http.delete<boolean> (`${this.apiUrl}/products/${id}`);
   }
 }

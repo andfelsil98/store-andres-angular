@@ -13,9 +13,10 @@
   <div class="side-menu" [class.active] = 'activeMenu'>
     <button (click)="toggleMenu()">Close</button>
     <ul>
-      <li><a href="">All</a></li>
-      <li><a href="">Clothes</a></li>
-      <li><a href="">Electronics</a></li>
+      <li><a routerLink="home">All</a></li>
+      <li *ngFor="let item of categories" >
+        <a [routerLink]="['/category', item.id]">{{ item.name }}</a>
+      </li>
     </ul>
   </div>
 </div>
@@ -26,13 +27,22 @@
         <img src="./assets/icons/logo_yard_sale.svg" alt="logo">
       </a>
       <ul>
-        <li><a href="">All</a></li>
-        <li><a href="">Clothes</a></li>
-        <li><a href="">Electronics</a></li>
+        <!-- se usa routerlink para reemplazar el href e indicar a que ruta quiero que se dirija en este caso home (recordar configurar los paths en app-routing.module.ts) -->
+        <li><a routerLinkActive="active" routerLink="home">All</a></li>
+        <li *ngFor="let item of categories" >
+          <!-- con routerlink active lo que logro es decir que cuando la ruta especificada este seleccionada se cree la clase para esta etiqueta que esta entre comillas y le ponga los estilos respectivos en este caso la clase se llama active y le pondra un borde y un color a los elementos -->
+          <a routerLinkActive="active" [routerLink]="['/category', item.id]">{{ item.name }}</a>
+        </li>
       </ul>
     </nav>
     <div class="info">
-      <div class="account">andres@andres.com</div>
+      <div class="account" >
+        <button *ngIf="!profile; else elseBlock" (click)="login()">Login</button>
+        <ng-template #elseBlock>
+          {{ profile?.email }}
+        </ng-template>
+        <!-- <button (click)="getProfile()">Get profile</button> -->
+      </div>
       <div class="cart">
         <a href="">
           <img src="./assets/icons/icon_shopping_cart.svg" alt="logo">
